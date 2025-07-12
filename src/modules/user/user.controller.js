@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { authentication } from "../../middleware/auth.middleware.js";
+import { validation } from "../../middleware/validation.middleware.js";
+import { uploadCloudFile } from "../../utils/multer/cloud.multer.js";
+import { fileTypes } from "../../utils/multer/local.multer.js";
 import {
   blockUser,
+  changeRole,
+  dashboard,
   profile,
   shareProfile,
   twoStepVerification,
@@ -11,17 +16,21 @@ import {
   updateProfileImage,
   verifyTwoStepOTP,
 } from "./service/user.service.js";
-import { validation } from "../../middleware/validation.middleware.js";
 import {
   blockUserValidation,
+  profileImage,
   shareProfileValidation,
   updatePasswordValidation,
   updateProfileValidation,
 } from "./user.validation.js";
-import { fileTypes, uploadDiskFile } from "../../utils/multer/local.multer.js";
+import { endPoint } from "./user.authorized.js";
 
 const userRouter = Router();
 userRouter.get("/profile", authentication(), profile);
+userRouter.get("/profile/dashboard", authentication(), authentication(endPoint.changeRole), dashboard);
+userRouter.patch("/:userId/profile/dashboard/role", authentication(), authentication(endPoint.changeRole), changeRole);
+
+
 userRouter.get(
   "/share-profile/:profileId",
   validation(shareProfileValidation),
@@ -33,15 +42,16 @@ userRouter.patch('/update-profile', validation(updateProfileValidation), authent
 userRouter.patch(
   '/update-profile-image',
   authentication(),
-  uploadDiskFile('user/profile', fileTypes.image).single('image'),
+  uploadCloudFile(fileTypes.image).single('image'),
+  validation(profileImage),
   updateProfileImage)
 
 
-  userRouter.patch(
-    '/update-profile-image/cover',
-    authentication(),
-    uploadDiskFile('user/profile', fileTypes.image).array('image',3),
-    updateProfileCoverImages)
+userRouter.patch(
+  '/update-profile-image/cover',
+  authentication(),
+  uploadCloudFile(fileTypes.image).array('image', 4),
+  updateProfileCoverImages)
 
 userRouter.patch(
   "/update-password",

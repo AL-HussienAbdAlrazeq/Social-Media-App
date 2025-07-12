@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon"
+    "start": "node --watch index.js"
   },
   "keywords": [],
   "author": "",
@@ -13,16 +13,21 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "google-auth-library": "^9.15.0",
+    "graphql": "^16.11.0",
+    "graphql-http": "^1.22.4",
+    "graphql-playground-middleware-express": "^1.7.23",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "multer": "^1.4.5-lts.1",
     "nanoid": "^5.0.9",
     "nodemailer": "^6.9.16",
-    "social_app": "file:"
+    "social_app": "file:",
+    "socket.io": "^4.8.1"
   }
 }

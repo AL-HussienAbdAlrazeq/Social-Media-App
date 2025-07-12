@@ -2,7 +2,7 @@ import { model, Schema, Types } from "mongoose";
 
 export const genderTypes = { male: "male", female: "female" };
 export const providerTypes = { google: "google", system: "system" };
-export const roleTypes = { user: "user", admin: "admin" };
+export const roleTypes = { user: "user", admin: "admin", superAdmin: "superAdmin" };
 
 const userModel = new Schema(
   {
@@ -25,8 +25,8 @@ const userModel = new Schema(
     DOB: { type: Date },
     phone: String,
     address: String,
-    image: String,
-    coverImages: [String],
+    image: { secure_url: String, public_id: String },
+    coverImages: [{ secure_url: String, public_id: String }],
     role: {
       type: String,
       enum: Object.values(roleTypes),
@@ -38,7 +38,7 @@ const userModel = new Schema(
       default: roleTypes.male,
     },
     confirmEmail: { type: Boolean, default: false },
-    isDeleted: { type: Boolean, default: false },
+    isDeleted: { type: Date },
     changeCredentialTimes: Date,
     codeExpiry: { type: Date },
     failedAttempts: { type: Number, default: 0 },
@@ -63,9 +63,17 @@ const userModel = new Schema(
         ref: "User",
       },
     ],
+    updatedBy:{
+      type:Types.ObjectId,
+      ref:'User'
+    }
   },
   { timestamps: true, versionKey: false }
 );
 
 const User = model("User", userModel);
 export default User;
+
+
+export const socketConnection = new Map()
+ 

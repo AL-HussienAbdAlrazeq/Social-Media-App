@@ -40,3 +40,18 @@ export const verifyOTPValidation = joi
     emailToBlock:generalFields.email.required()
   })
   .required();
+
+
+  export const profileImage = joi.object().keys({
+    file:joi.object().keys({
+      fieldname: joi.string(),
+      originalname: joi.string(),
+      encoding:joi.string(),
+      mimetype: joi.string(),
+      finalPath: joi.string(),
+      destination: joi.string(),
+      filename: joi.string(),
+      path: joi.string(),
+      size: joi.number(),
+    }).required()
+  }).required()

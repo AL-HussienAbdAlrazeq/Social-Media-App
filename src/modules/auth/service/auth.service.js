@@ -63,14 +63,14 @@ export const login = asyncHandler(async (req, res, next) => {
   if (!compareHash({ plainText: password, hashValue: user.password })) {
     return next(new Error("Invalid Account ", { cause: 400 }));
   }
-  if(user.twoStepVerification){
-    emailEvent.emit("twoStepVerification" , {id:user._id , email:user.email})
-    return successResponse({res , status:201 , message:"The OTP is sent to your email", data:{}})
+  if (user.twoStepVerification) {
+    emailEvent.emit("twoStepVerification", { id: user._id, email: user.email })
+    return successResponse({ res, status: 201, message: "The OTP is sent to your email", data: {} })
   }
   const access_token = generateToken({
-    payload: { id: user._id },
+    payload: { id: user._id , role:user.role },
     signature:
-      user.role === roleTypes.admin
+      [roleTypes.admin, roleTypes.superAdmin].includes(user.role)
         ? process.env.ADMIN_ACCESS_TOKEN
         : process.env.USER_ACCESS_TOKEN,
   });
@@ -78,7 +78,7 @@ export const login = asyncHandler(async (req, res, next) => {
   const refresh_token = generateToken({
     payload: { id: user._id },
     signature:
-      user.role === roleTypes.admin
+      [roleTypes.admin, roleTypes.superAdmin].includes(user.role)
         ? process.env.ADMIN_REFRESH_TOKEN
         : process.env.USER_REFRESH_TOKEN,
     expiresIn: 31536000,
@@ -93,19 +93,19 @@ export const login = asyncHandler(async (req, res, next) => {
 });
 
 export const confirmLogin = asyncHandler(async (req, res, next) => {
-  
-  const {otp , email} = req.body
-  const user = await User.findOne({email})
-  if(!user){
+
+  const { otp, email } = req.body
+  const user = await User.findOne({ email })
+  if (!user) {
     return next(new Error("User not found", { cause: 404 }));
   }
-  if(!compareHash({plainText:otp , hashValue:user.twoStepVerificationOTP}) ){
+  if (!compareHash({ plainText: otp, hashValue: user.twoStepVerificationOTP })) {
     return next(new Error("Invalid OTP ", { cause: 400 }));
   }
   const access_token = generateToken({
     payload: { id: user._id },
     signature:
-      user.role === roleTypes.admin
+      [roleTypes.admin, roleTypes.superAdmin].includes(user.role)
         ? process.env.ADMIN_ACCESS_TOKEN
         : process.env.USER_ACCESS_TOKEN,
   });
@@ -113,7 +113,7 @@ export const confirmLogin = asyncHandler(async (req, res, next) => {
   const refresh_token = generateToken({
     payload: { id: user._id },
     signature:
-      user.role === roleTypes.admin
+      [roleTypes.admin, roleTypes.superAdmin].includes(user.role)
         ? process.env.ADMIN_REFRESH_TOKEN
         : process.env.USER_REFRESH_TOKEN,
     expiresIn: 31536000,
@@ -283,3 +283,5 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   );
   return successResponse({ res, status: 200, message: "Done" });
 });
+
+
